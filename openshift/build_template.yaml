@@ -2,7 +2,7 @@ kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
   name: jupyterhub-img-wrapper
-  namespace: opendatahub
+  namespace: ${NAMESPACE}
   labels:
     app: jupyterhub
     component.opendatahub.io/name: jupyterhub
@@ -23,14 +23,14 @@ spec:
         kind: ImageStreamTag
         name: 'jupyterhub-img:latest'
       buildArgs:
-      - {"name": "user", "value": "vpavlin"}
-      - {"name": "branch", "value": "master"}
+      - {"name": "user", "value": "${PROFILES_GIT_USER}"}
+      - {"name": "branch", "value": "${PROFILES_GIT_REF}"}
   postCommit: {}
   source:
     type: Git
     git:
-      uri: 'https://github.com/vpavlin/jsp-wrapper'
-      ref: main
+      uri: 'https://github.com/${WRAPPER_GIT_USER}/jsp-wrapper'
+      ref: ${WRAPPER_GIT_REF}
   triggers:
     - type: ConfigChange
     - type: ImageChange
