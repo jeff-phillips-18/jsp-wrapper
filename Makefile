@@ -1,4 +1,8 @@
-QUAY_REPO=$(USER)
+ifneq ("$(wildcard ./setup_local)","")
+	include ./.env.local
+endif
+
+QUAY_REPO ?= $(USER)
 IMAGE_NAME=jupyterhub-img
 IMAGE_TAG=test-jsp
 NAMESPACE ?= $(USER)-odh
@@ -12,8 +16,7 @@ IMAGE=$(IMAGE_NAME):$(IMAGE_TAG)
 TARGET=quay.io/$(QUAY_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 GIT_REPO_URL=https://github.com/$(GIT_USER)/${REPO}
 
-
-
+REMOTE_CMD ?= podman
 
 all: namespace prep-dc local
 legacy: namespace prep-is local-legacy
@@ -23,13 +26,13 @@ local: build-local tag push rollout
 local-legacy: build-local tag push import rollout
 
 build-local:
-	podman build . --build-arg user=$(GIT_USER) --build-arg branch=$(GIT_REF) --build-arg repo=${GIT_REPO} --no-cache -t $(IMAGE) -f ${DOCKERFILE}
+	$(REMOTE_CMD) build . --build-arg user=$(GIT_USER) --build-arg branch=$(GIT_REF) --build-arg repo=${GIT_REPO} --no-cache -t $(IMAGE) -f ${DOCKERFILE}
 
 tag:
-	podman tag $(IMAGE) $(TARGET)
+	$(REMOTE_CMD) tag $(IMAGE) $(TARGET)
 
 push:
-	podman push $(TARGET)
+	$(REMOTE_CMD) push $(TARGET)
 
 import:
 	oc import-image -n $(NAMESPACE) jupyterhub-img
