@@ -5,6 +5,8 @@ endif
 QUAY_REPO ?= $(USER)
 GIT_USER ?= $(USER)
 NAMESPACE ?= $(USER)-odh
+OPERATOR_NAME ?= odh-operator
+OPERATOR_NAMESPACE ?= $(USER)-ods-operator
 GIT_REF ?= master
 REMOTE_CMD ?= podman
 
@@ -47,6 +49,8 @@ prep-is:
 	oc patch imagestream/jupyterhub-img -n $(NAMESPACE) -p '{"spec":{"tags":[{"name":"latest","from":{"name":"'$(TARGET)'"}}]}}'
 
 prep-dc:
+	oc scale --replicas=0 deployment $(OPERATOR_NAME) -n $(OPERATOR_NAMESPACE)
+	sleep 10
 	oc patch deploymentconfig/jupyterhub -n $(NAMESPACE) -p '{"spec":{"template":{"spec":{"initContainers":[{"name":"wait-for-database", "image":"'${TARGET}'"}],"containers":[{"name":"jupyterhub","image":"'${TARGET}'"}]}}}}'
 
 apply:
