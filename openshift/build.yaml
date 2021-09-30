@@ -30,7 +30,7 @@ spec:
     type: Git
     git:
       uri: 'https://github.com/jeff-phillips-18/jsp-wrapper'
-      ref: jeff
+      ref: spawn-pending
   triggers:
   runPolicy: Serial
 status:
